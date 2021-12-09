@@ -27,7 +27,8 @@ const showBalance = async (acc) => console.log(`Your balance is ${toSU(await std
 (async () => {
 
   const commonInteract = (role) => ({
-    reportExit: () => console.log(`Exiting contract.`)
+    reportExit: () => console.log(`Exiting contract.`),
+    reportCancellation: () => { console.log(`${role == 'sponsor' ? 'You' : 'The sponsor'} refused to sponsor.`); }
   });
 
   // Project Owner
@@ -62,8 +63,15 @@ const showBalance = async (acc) => console.log(`Your balance is ${toSU(await std
       ...commonInteract(role),
       sponsor: async (projectInfo) => {
         console.log(projectInfo.projectName);
-        console.log(`${toSU(projectInfo.fundraisingGoal)}`);
-        const fund = { amt: 200};
+        console.log(`Fundraising goal: ${toSU(projectInfo.fundraisingGoal)}`);
+        const fund = {contribute: false, amt: 0};
+        const willContribute = await ask(`Do yo wish to contribute?`, yesno);
+        if (willContribute) {
+          fund.contribute = true
+        }
+        confirmSponsor: async (total) => await ask(`Do you want to complete the sponsoring for ${toSU(project.formatCurrency)} ${suStr}?`, yesno)
+        // reportContribution
+        // const sendFund = await ask(`Enter 1-${sellerInfo.products.length}, or 0 to exit:`, (x => x)); 
         return fund;
       }
     };
