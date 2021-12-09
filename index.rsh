@@ -70,6 +70,7 @@ export const main = Reach.App(() => {
   // }
   
   S.pay(fund);
+  transfer(fund).to(PO);
   // const token4Sponsor = fund/(100 * 15)
   // const token4Owner = (100-15)*(fund/100)
   // transfer(token4Sponsor).to(S);
