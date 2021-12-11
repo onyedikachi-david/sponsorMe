@@ -5,13 +5,21 @@ const fundraisingGoal = UInt;
 
 const commonInteract = {
   reportExit: Fun([], Null),
-  reportCancellation: Fun([], Null)
+  reportCancellation: Fun([], Null),
+  showToken: Fun(true, Null),
+  didTransfer: Fun([Bool, UInt], Null),
 };
 
 const projectOwnerInteract = {
   ...commonInteract,
   projectInfo: Object({projectName: projectName, projectDetails: projectDetails, fundraisingGoal: fundraisingGoal}),
-  reportReady: Fun([], Null)
+  reportReady: Fun([], Null),
+  getParams: Fun([], Object({
+    name: Bytes(32), symbol: Bytes(8),
+    url: Bytes(96), metadata: Bytes(32),
+    supply: UInt,
+    amt: UInt,
+  })),
 };
 
 const sponsorInteract = {
@@ -20,15 +28,12 @@ const sponsorInteract = {
     [Object({projectName: projectName, projectDetails: projectDetails, fundraisingGoal: fundraisingGoal})],
     Object({ contribute: Bool, amt: UInt })
   ),
-  // confirmSponsor: Fun([UInt], Bool),
-  // confirmContribution: Fun([UInt], Bool),
-  // sendFund: 
 };
 
 export const main = Reach.App(() => {
   const PO = Participant('ProjectOwner', projectOwnerInteract);
   const S = Participant('Sponsor', sponsorInteract);
-  deploy();
+  deploy(); // deploy function takes you to the Step mode
 
 
   PO.only(() => { const projectInfo = declassify(interact.projectInfo); });
@@ -68,15 +73,27 @@ export const main = Reach.App(() => {
   // } else {
   // commit();
   // }
+
+  //generates new token
+  // const supply;
+  // require(supply >= fund);
+
+  // const tok = new Token({ name =  "Project Token", symbol =  "PTK", url, metadata, supply = fund, decimals });
+  //calculate percentage tokens for proposal owner and sponsors
+  // const sponsorToken = supply*0.4;
+  // const proposalToken = tok - sponsorToken;
+  //transfer tokens
+  // transfer(sponsorToken, tok).to(PO);
+  // transfer(proposalToken, tok).to(S)
   
-  S.pay(fund);
-  transfer(fund).to(PO);
+  // S.pay(fund);
+  // transfer(fund).to(PO);
   // const token4Sponsor = fund/(100 * 15)
   // const token4Owner = (100-15)*(fund/100)
   // transfer(token4Sponsor).to(S);
   // transfer(token4Owner).to(PO);
   // transfer(token4Sponsor).to(S)
-  commit();
+  // commit();
 
   each([PO, S], () => interact.reportExit());
   exit();
