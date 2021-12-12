@@ -38,6 +38,7 @@ export const main = Reach.App(() => {
 
   PO.only(() => { const projectInfo = declassify(interact.projectInfo); });
   PO.publish(projectInfo);
+  
   PO.interact.reportReady();
 
   commit();
@@ -63,6 +64,74 @@ export const main = Reach.App(() => {
   // PO.publish(token4Sponsor);
 
   commit();
+
+  // const getParams = 
+  PO.only(() => {const { name, symbol, url, metadata, supply, amt } = declassify(interact.getParams());
+  assume(4 * amt <= supply);
+  assume(4 * amt <= UInt.max);
+});
+  
+  PO.publish(name, symbol, url, metadata, supply, amt);
+  require(4 * amt <= supply);
+  require(4 * amt <= UInt.max);
+
+  const md1 = {name, symbol, url, metadata, supply};
+  const tok1 = new Token(md1);
+  PO.interact.showToken(tok1, md1);
+  commit();
+  S.publish();
+  S.interact.showToken(tok1, md1);
+  commit();
+// Todo: Add if statement for gradual release of funds...
+  // const doTransfer1 = (who, tokX) => {
+  //   if (who == PO){
+  //     transfer(2 * amt, tokX).to(who);
+  //     who.interact.didTransfer(true, amt);
+  //     commit();
+  //   } else {
+  //     transfer(2 * amt, tokX).to(who);
+  //     who.interact.didTransfer(true, amt);
+  //     commit();
+  //   }
+    
+  // };
+
+  const doTransfer1 = (who, tokX) => {
+    transfer(2 * amt, tokX).to(who);
+    who.interact.didTransfer(true, amt);
+  };
+  
+  S.publish();
+  doTransfer1(S, tok1);
+  commit();
+  PO.publish();
+  doTransfer1(PO, tok1);
+  commit();
+  PO.pay([[2*amt, tok1]]);
+  commit();
+  S.pay([[2*amt, tok1]]);
+  tok1.burn(supply);
+  tok1.destroy();
+
+  // const md2 = {name, symbol};
+  // const tok2 = new Token(md2);
+  // A.interact.showToken(tok2, md2);
+  // B.interact.showToken(tok2, md2);
+  // commit();
+
+  // B.publish();
+  // doTransfer1(B, tok2);
+  // commit();
+  // A.publish();
+  // doTransfer1(A, tok2);
+  // tok2.burn(/* defaults to all */);
+  // commit();
+  // A.pay([[2*amt, tok2]]);
+  // commit();
+  // B.pay([[2*amt, tok2]]);
+  // tok2.burn();
+  // tok2.destroy();
+  // commit();
   // S.only(() => { const willFund = declassify(interact.confirmSponsor(fund)); });
   // S.publish(willFund);
   // if (!willFund) {
@@ -93,7 +162,7 @@ export const main = Reach.App(() => {
   // transfer(token4Sponsor).to(S);
   // transfer(token4Owner).to(PO);
   // transfer(token4Sponsor).to(S)
-  // commit();
+  commit();
 
   each([PO, S], () => interact.reportExit());
   exit();
