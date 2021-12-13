@@ -78,16 +78,16 @@ export const main = Reach.App(() => {
 
 
   S.pay(fund);
-  transfer(fund).to(PO);
+  // transfer(fund).to(PO);
   each([PO, S], () => interact.reportPayment(fund));
-  transfer(fund).to(S);
+  transfer(fund).to(PO);
   each([PO, S], () => interact.reportTransfer(fund));
   commit();
 // Get token details and mint
   PO.only(() => {const { name, symbol, url, metadata, supply, amt } = declassify(interact.getParams());
   assume(4 * amt <= supply);
   assume(4 * amt <= UInt.max);
-
+});
   
   PO.publish(name, symbol, url, metadata, supply, amt);
   require(4 * amt <= supply);
