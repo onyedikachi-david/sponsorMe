@@ -21,17 +21,47 @@ const showBalance = async (acc) => console.log(`Your balance is ${toSU(await std
 // acc = await stdlib.newTestAccount(iBalance);
 // const abbrAddr = (addr) => addr.substr(0, 5);
 // const me = abbrAddr(acc.getAddress());
+let tok = null;
+    const showBalance2 = async () => {
+      // console.log(`${me}: Checking ${tok} balance:`);
+      // console.log(`${me}: ${tok} balance: ${fmt(await stdlib.balanceOf(acc, tok))}`);
+    };
 
-
-
+let amt = null;
 (async () => {
 
   const commonInteract = (role) => ({
     
     reportExit: () => console.log(`Exiting contract.`),
     reportCancellation: () => { console.log(`${role == 'sponsor' ? 'You' : 'The sponsor'} refused to sponsor.`); },
-    showToken: (gag) => { console.log(`Token for ${role == 'sponsor' ? 'You' : 'The sponsor'}`)},
-    didTransfer: (did, _amt) => {console.log(`Transfer was made`)},
+    // showToken: (gag) => { console.log(`Token for ${role == 'sponsor' ? 'You' : 'The sponsor'}`)},
+    // didTransfer: (did, _amt) => {console.log(`Transfer was made`)},
+    // showToken: () => async (_tok, cmd) => {
+    //   tok = _tok;
+    //   // console.log(`${me}: The token is: ${tok}`);
+    //   await showBalance2();
+    //   // console.log(`${me}: The token computed metadata is:`, cmd);
+    //   // const omd = await acc.tokenMetadata(tok);
+    //   // // console.log(`${me}: The token on-chain metadata is:`, omd);
+    //   // for ( const f in cmd ) {
+    //   //   assertEq(cmd[f], omd[f]);
+    //   // }
+    //   // console.log(`${me}: Opt-in to ${tok}:`);
+    //   await acc.tokenAccept(tok);
+    //   await showBalance2();
+    // },
+    
+    didTransfer: () => async (did, _amt) => {
+      if ( did ) {
+        amt = _amt;
+        // console.log(`${me}: Received transfer of ${fmt(amt)} for ${tok}`);
+      }
+      await showBalance2();
+      // This next line is weird.
+      // console.log(`${me}: Doing transfer for ${tok}`);
+      await stdlib.transfer(acc, other, amt, tok);
+      await showBalance2();
+    },
   });
 
   // Project Owner
@@ -53,40 +83,42 @@ const showBalance = async (acc) => console.log(`Your balance is ${toSU(await std
         amt: stdlib.parseCurrency(10),
       }),
       
+      
+      
       // reportDone: () => { console.log(`You are done.`); process.exit(0); }
     };
 
-    let tok = null;
-    const showBalance = async () => {
-      // console.log(`${me}: Checking ${tok} balance:`);
-      // console.log(`${me}: ${tok} balance: ${fmt(await stdlib.balanceOf(acc, tok))}`);
-    };
-    const showToken = async (_tok, cmd) => {
-      tok = _tok;
-      // console.log(`${me}: The token is: ${tok}`);
-      await showBalance();
-      // console.log(`${me}: The token computed metadata is:`, cmd);
-      const omd = await acc.tokenMetadata(tok);
-      // console.log(`${me}: The token on-chain metadata is:`, omd);
-      for ( const f in cmd ) {
-        assertEq(cmd[f], omd[f]);
-      }
-      // console.log(`${me}: Opt-in to ${tok}:`);
-      await acc.tokenAccept(tok);
-      await showBalance();
-    };
-    let amt = null;
-    const didTransfer = async (did, _amt) => {
-      if ( did ) {
-        amt = _amt;
-        // console.log(`${me}: Received transfer of ${fmt(amt)} for ${tok}`);
-      }
-      await showBalance();
-      // This next line is weird.
-      // console.log(`${me}: Doing transfer for ${tok}`);
-      // await stdlib.transfer(acc, other, amt, tok);
-      // await showBalance();
-    };
+    // let tok = null;
+    // const showBalance = async () => {
+    //   // console.log(`${me}: Checking ${tok} balance:`);
+    //   // console.log(`${me}: ${tok} balance: ${fmt(await stdlib.balanceOf(acc, tok))}`);
+    // };
+    // const showToken = async (_tok, cmd) => {
+    //   tok = _tok;
+    //   // console.log(`${me}: The token is: ${tok}`);
+    //   await showBalance();
+    //   // console.log(`${me}: The token computed metadata is:`, cmd);
+    //   const omd = await acc.tokenMetadata(tok);
+    //   // console.log(`${me}: The token on-chain metadata is:`, omd);
+    //   for ( const f in cmd ) {
+    //     assertEq(cmd[f], omd[f]);
+    //   }
+    //   // console.log(`${me}: Opt-in to ${tok}:`);
+    //   await acc.tokenAccept(tok);
+    //   await showBalance();
+    // };
+    // let amt = null;
+    // const didTransfer = async (did, _amt) => {
+    //   if ( did ) {
+    //     amt = _amt;
+    //     // console.log(`${me}: Received transfer of ${fmt(amt)} for ${tok}`);
+    //   }
+    //   await showBalance();
+    //   // This next line is weird.
+    //   // console.log(`${me}: Doing transfer for ${tok}`);
+    //   // await stdlib.transfer(acc, other, amt, tok);
+    //   // await showBalance();
+    // };
 
 
     const acc = await stdlib.newTestAccount(iBalance);
